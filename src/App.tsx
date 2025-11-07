@@ -241,19 +241,25 @@ const Forbidden: React.FC = () => (
 const Router = () => {
   const { isAuthenticated } = useAuth();
 
-  // Ensure URL includes a hash for the login path. Tests expect the URL
-  // to contain '/login' when on the login page, but visiting the root
-  // (http://localhost:5173/) may leave the hash empty. If so, normalize
-  // the URL to '#/login' and render the Login component.
-  const rawHash = window.location.hash; // includes leading '#'
-  const path = rawHash.slice(1) || '/login';
+  // Track the hash in state so the Router re-renders when the hash changes.
+  // Without this, clicking an anchor that changes the hash won't update the
+  // rendered component because React won't know the URL changed.
+  const [rawHash, setRawHash] = React.useState(window.location.hash);
+  React.useEffect(() => {
+    const onHashChange = () => setRawHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    // If there is no hash at mount, normalize to '#/login' so tests that
+    // assert the presence of '/login' in the URL behave consistently.
+    if (!window.location.hash) {
+      window.location.hash = '/login';
+      // setRawHash will be updated via the hashchange event, but ensure state
+      // is consistent in environments where the event might be synchronous.
+      setRawHash(window.location.hash);
+    }
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
-  if (!rawHash) {
-    // Normalize the URL so Cypress assertions like `cy.url().should('include', '/login')`
-    // will pass. We render Login immediately to avoid an extra navigation tick.
-    window.location.hash = '/login';
-    return <Login />;
-  }
+  const path = rawHash.slice(1) || '/login';
 
   let Component;
   if (!isAuthenticated && path !== '/login') {

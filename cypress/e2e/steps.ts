@@ -97,9 +97,11 @@ When("Vardiya Oluşturma sayfasına gidildi", () => {
 
 When("Başlangıç zamanı {string} ve Bitiş zamanı {string} olarak dolduruldu", (start: string, end: string) => {
   // UI elementlerini doldurma
-  cy.get('[data-cy=başlangıç-zamanı-input]').type(start);
-  cy.get('[data-cy=bitiş-zamanı-input]').type(end);
-  cy.get('form[data-cy=shift-form]').find('button[type="submit"]').click(); // Formu gönder
+  // Quote the attribute values (they contain non-ASCII characters) and
+  // clear before typing so the default values do not cause concatenation.
+  cy.get('[data-cy="başlangıç-zamanı-input"]').clear().type(start);
+  cy.get('[data-cy="bitiş-zamanı-input"]').clear().type(end);
+  cy.get('form[data-cy="shift-form"]').find('button[type="submit"]').click(); // Formu gönder
 });
 
 

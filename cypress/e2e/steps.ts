@@ -101,7 +101,9 @@ When("Başlangıç zamanı {string} ve Bitiş zamanı {string} olarak dolduruldu
   // clear before typing so the default values do not cause concatenation.
   cy.get('[data-cy="başlangıç-zamanı-input"]').clear().type(start);
   cy.get('[data-cy="bitiş-zamanı-input"]').clear().type(end);
-  cy.get('form[data-cy="shift-form"]').find('button[type="submit"]').click(); // Formu gönder
+  // Do not submit here; the feature file explicitly clicks the "Vardiya Yarat" button
+  // in the next step. Submitting here would make the following click attempt to
+  // fail because the app navigates away immediately after successful creation.
 });
 
 
